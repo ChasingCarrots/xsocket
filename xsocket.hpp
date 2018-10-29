@@ -86,13 +86,13 @@ enum class shut	{
 };
 
 typedef std::vector<char> buffer;
-typedef std::vector<endpoint> endpoint_buffer;
 
 /*
  *	generic endpoint class for uniform access to ipv4 and ipv6
  */
 
 struct endpoint {
+	typedef std::vector<endpoint> endpoint_buffer;
 	endpoint()	{
 		memset( &addr, 0, sizeof( sockaddr_storage ) );
 		addrlen = sizeof( sockaddr_storage );
@@ -276,30 +276,30 @@ struct socket {
 		return ::connect( fd, ep.data(), ep.size() );
 	}
 
-	std::size_t sendto( const char* data, std::size_t len, endpoint ep )	{
+	int sendto( const char* data, std::size_t len, endpoint ep )	{
 		return ::sendto( fd, data, len, 0, ep.data(), ep.size() );
 	}
 
-	std::size_t sendto( const std::vector<char>& data, endpoint ep )	{
+	int sendto( const std::vector<char>& data, endpoint ep )	{
 		return sendto( data.data(), data.size(), ep );
 	}
 
-	std::size_t sendto( const std::string* data, endpoint ep )	{
+	int sendto( const std::string* data, endpoint ep )	{
 		return sendto( data->c_str(), data->size(), ep );
 	}
 
-	std::size_t recvfrom( char* buf, std::size_t len, endpoint* ep )	{
+	int recvfrom( char* buf, std::size_t len, endpoint* ep )	{
 		socklen_t al = ep->size();
 		int i = ::recvfrom( fd, buf, len, 0, ep->data(), &al );
 		ep->initialize( al, addrfam );
 		return i;
 	}
 
-	std::size_t recvfrom( std::vector<char>& buf, endpoint* ep )	{
+	int recvfrom( std::vector<char>& buf, endpoint* ep )	{
 		return recvfrom( buf.data(), buf.size(), ep );
 	}
 
-	std::size_t recvfrom( std::string* buf, std::size_t len, endpoint* ep )	{
+	int recvfrom( std::string* buf, std::size_t len, endpoint* ep )	{
 		std::vector<char> buffer( len );
 		int r = recvfrom( buffer, ep );
 		if( r > 0 )
@@ -307,27 +307,27 @@ struct socket {
 		return r;
 	}
 
-	std::size_t send( const char* data, std::size_t len )	{
+	int send( const char* data, std::size_t len )	{
 		return ::send( fd, data, len, 0 );
 	}
 
-	std::size_t send( const std::vector<char>& data )	{
+	int send( const std::vector<char>& data )	{
 		return send( data.data(), data.size() );
 	}
 
-	std::size_t send( const std::string* data )	{
+	int send( const std::string* data )	{
 		return send( (char*)data->c_str(), data->size() );
 	}
 
-	std::size_t recv( char* buf, std::size_t len )	{
+	int recv( char* buf, std::size_t len )	{
 		return ::recv( fd, buf, len, 0 );
 	}
 
-	std::size_t recv( std::vector<char>& buf )	{
+	int recv( std::vector<char>& buf )	{
 		return recv( buf.data(), buf.size() );
 	}
 
-	std::size_t recv( std::string* buf, std::size_t len )	{
+	int recv( std::string* buf, std::size_t len )	{
 		std::vector<char> buffer( len );
 		int r = recv( buffer );
 		if( r > 0 )
